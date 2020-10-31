@@ -1,0 +1,216 @@
+---
+title: "Getting started with imbCalib"
+author: "Yu Yang"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with imbCalib}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = ">",
+  warning = FALSE, 
+  cache = TRUE
+)
+require('pacman')
+pacman::p_load(pROC, mltools, caTools, e1071, randomForest, foreach, doParallel, abind, imbCalib)
+```
+
+When doing classification, we not only want the prediction results, but also the corresponding probabilty of the decision. The ideal probability shall give us a sense of confidence about the predicted labels. For example, given a sample, if the probability for the prediction is 80%, then approximately 80% samples with the same features actually have the predicted label. For applications where we need to use confidence to support decision making, it is vital to have good estimates of probabilities.
+
+But unlike logistic regression, where the prediction is based on probabilities, many supervised learning methods don't come natually with probabilities. For example, Support Vector Machine is performed based on margins, instead of probabilities. The probabilities given by SVM model is actually calibrated using Platt's scaling. Another commonly used calibration method is Isotonic regression. Check [Niculescu-Mizil and Caruana 2005](https://www.cs.cornell.edu/~alexn/papers/calibration.icml05.crc.rev3.pdf) for more details.
+
+One big issue of these methods is that they only work for balanced data, and when it comes to the imbalanced data case, they usually underestimate the probabilities for the minority class instances. To solve this problem, [Wallace and Dahabreh 2014](https://link.springer.com/article/10.1007%2Fs10115-013-0670-6) proposed using bagged undersampled method to calibrate probabilities. And this is the methodology basis of this package.
+
+## Imbalanced Dataset
+Class imbalance happens when the number of instances in each class is not equal. And in the imbalanced scenario, the rare events are usually misclassified. Imbalance would affect not only classfication results, but also probability calibration.
+
+A synthesized imbalanced dataset `imbalance` is provided in this package and it can be loaded with `data(imbalance)`. In this dataset, about 5% are in the positive class. There are 8 covariates and 1 binary response. The positive label is 1. 
+
+```{r show-data}
+data(imbalance)
+names(imbalance)
+mean(imbalance$y)
+```
+
+## Metrics
+
+### Why AUC is not enough?
+In the evaluation of model performances, accuracy is not enough for classification problems, and AUC can provide us more information. But AUC itself is not enough to evaluate the goodness of probability calibration. 
+
+The following example illustrates that the scale of the probabilities would not affect AUC. Two sets of probabilities can have the same AUC, while they show different levels of confidence. Therefore, AUC is not appropriate to evaluate the goodness of probability calibration.
+
+```{r example-auc, fig.height = 5, fig.width = 5}
+# simulate data
+threshold <- 0.6
+set.seed(99)
+y.true <- (runif(10) > threshold) * 1
+set.seed(92)
+y.prob <- runif(10) 
+y.pred <- (y.prob > threshold) * 1
+
+# print out the simulated data
+y.true
+y.prob
+y.pred
+
+# auc in the original scale
+auc(roc(y.true, y.prob, direction = "<", quiet = TRUE))
+
+# auc using the rank of the probabilities
+auc(roc(y.true, rank(y.prob), direction = "<", quiet = TRUE))
+
+# auc using the probability-like rank
+auc(roc(y.true, rank(y.prob) / 50, direction = "<", quiet = TRUE))
+
+# plot kernel density
+plot(density(y.prob), col = 'red', main = 'Kernel Density Curve', xlab = 'Probability Value', xlim = c(-0.5, 1.5), ylim = c(0, 5.5), lty = 1)
+lines(density(rank(y.prob) / 50), col = 'blue', lty = 1)
+legend('topright', legend = c("Original Probability", "Rescaled Probability"), 
+       col = c('red', 'blue'), lty = c(1, 1))
+```
+
+### Brier Score
+
+Brier score measures the fit of probability estimates to the observed data. It is defined as the mean squared difference between the observed labels and the estimated probability. A smaller value means a better calibration.
+$$BS = \frac{\sum_{i=1}^N (y_i - \hat{P}(y_i | x_i))^2}{N}$$
+
+To obtain the standard Brier score, run `brier` function. The first argument should be the true labels, and the second argument should be the calibrated probabilities.
+
+```{r brier}
+y.prob <- c(0.45454545, 0.36363636, 0.63636364, 0.18181818, 0.45454545, 0.09090909,
+ 0.27272727, 0.81818182, 0.63636364, 0.63636364)
+y.true <- c(0, 0, 1, 1, 0, 1, 1, 0, 0, 0)
+brier(y.true, y.prob)
+```
+
+### Stratified Brier Score
+
+Stratified Brier Score was proposed by [Wallace and Dahabreh 2014](https://link.springer.com/article/10.1007%2Fs10115-013-0670-6) to evaluate the goodness of calibration under the imbalanced scenario. Unlike the standard Brier score, which only considers the overall matching, it takes care of both the minority and the majority class. It consists of two parts: Brier score for the positive class, and Brier score for the negative class. They are defined as follows. 
+$$BS^+ = \frac{\sum_{y_i=\text{pos_label}} (y_i - \hat{P}(y_i | x_i))^2}{N_{pos}}$$
+$$BS^- = \frac{\sum_{y_i=\text{neg_label}} (y_i - \hat{P}(y_i | x_i))^2}{N_{pos}}$$
+
+`stratifiedBrier` function would output a list with three elements: the overall Brier score, the positive Brier socre, as well as the negative Brier score.
+
+```{r}
+stratifiedBrier(y.true, y.prob)
+```
+
+## Calibration Curve
+Visualization usually helps us better understand the problem of the model more quickly and intuitively. In this package, `calibCurve` shows two plots: the top one is the calibration curve along with a perfectly calibrated dashed line, and the bottom one is the histogram of the calibrated probabilities. The corresponding Brier score is shown in the legend. `comparisonPlot` plots the calibration curves from several models or from several calibration methods. 
+
+We now use the dataset `imbalance` to see how the two plotting functions work. In the following, we consider four models: Logistic Regression, Naive Bayes Classifier, Random Forest Classifier, and Support Vector Machine(SVM). For simplity, the default parameters are used. For each model, we plot their individual calibration curve respectively, and then draw a comparison plot. 
+
+```{r data}
+# load the dataset and split into train and test
+data(imbalance)
+set.seed(123)
+split <- sample.split(imbalance$y, SplitRatio = 0.75)
+train_set <- subset(imbalance, split == TRUE)
+test_set <- subset(imbalance, split == FALSE)
+X.test <- subset(test_set, select = -y)
+y.test <- subset(test_set, select = y)[,1]
+```
+
+
+```{r lr, fig.height = 6, fig.width = 4.5}
+# Logistic Regression
+lr <- glm(y ~ ., data = train_set, family = "binomial")
+prob.lr <- predict(lr, X.test, type = "response")
+calibCurve(y.test, prob.lr, "Logistic")
+```
+
+```{r nnb, fig.height = 6, fig.width = 4.5}
+# Naive Bayes
+nb <- naiveBayes(y ~ ., data = train_set)
+prob.nb <- as.data.frame(predict(nb, X.test, type = "raw"))$`1`
+calibCurve(y.test, prob.nb, "Naive Bayes")
+```
+
+```{r rfc, fig.height = 6, fig.width = 4.5}
+# Random Forest Classifier
+rfc <- randomForest(as.factor(y) ~ ., data = train_set)
+prob.rfc <- as.data.frame(predict(rfc, X.test, type = "prob"))$`1`
+calibCurve(y.test, prob.rfc, "Random Forest")
+```
+
+```{r svc, fig.height = 6, fig.width = 4.5}
+# Support Vector Machine Classifier
+svc <- svm(formula = as.factor(y) ~ ., 
+                 data = train_set, 
+                 type = 'C-classification', 
+                 kernel = 'linear', probability = TRUE) 
+pred <- predict(svc, X.test, probability = TRUE)
+prob.svc <- as.data.frame(attr(pred, "probabilities"))$`1`
+calibCurve(y.test, prob.svc, "SVM")
+```
+
+```{r comparison, fig.height = 5, fig.width = 5}
+comparisonPlot(y.test, list(prob.lr, prob.nb, prob.rfc, prob.svc), 
+                c("Logistic Regression", "Naive Bayes", "Random Forest", "SVM"))
+```
+
+## Bagged Undersampled Calibration
+
+`bagCalibrate` uses the bagged undersampled method to calibrate the probabilities for imbalanced datasets. There are two versions of bagging combination: the weighted average and the simple average, as defined below. To choose which version to use, specify the `ntimes` argument. When `ntimes = 1`, it is the simple average. And when `ntimes > 1`, it is the weighted average, and the weight is obtained using `ntimes` runs on each sampled dataset.
+
+$$\hat{P}(y_i | x_i) = \frac{1}{k}\sum_{j=1}^k \hat{P}_j(y_i | f_{ij})$$
+$$\hat{P}(y_i | x_i) = \frac{1}{z}\sum_{j=1}^k \frac{1}{\text{Var}(\hat{P}_j(y_i | f_{ij}))}  \hat{P}_j(y_i | f_{ij}),$$
+where 
+$$z = \sum_{j=1}^k \frac{1}{\text{Var}(\hat{P}_j(y_i | f_{ij}))}$$
+
+
+Models are trained using `trainset`, and predictions are made on `newX`. `response_name` specifies the name of the response in the trainset, and `model` specifies the model to work on. The function can now work with logistic regression models `'lr'`, naive Bayes models `'nb'`, random forest classifiers `'rf'`, and support vector machine classifiers `'svm'`. `nbags` specifies how many samples sets are used for bagging. Note that a large value will not lead to overfitting and will reduce the variance more, with the only cost being heavy computation load. And to speed up the bagging procedure, parallel computing is enabled. Find the number of cores in your computer, and then set `ncluster`.
+
+```{r args-bagCalibrate}
+# show the arguments of bagCalibrate
+args(bagCalibrate)
+
+# find the number of cores in your computer
+library(doParallel)
+detectCores()
+```
+
+Here, we use SVM as an example, and compare the standard calibration method with the bagged undersampled method. Note that the same formula of SVM is used for both methods. As the stratified Brier scores suggest, the bagged undersampled method can greatly mitigate the effect of imbalance in the positive class calibration, without much sacrifice in the negative class and the overall.
+
+```{r standard-svm}
+# standard probability calibration
+svc <- svm(formula = as.factor(y) ~ ., data = train_set, 
+                 type = 'C-classification', kernel = 'linear', probability = TRUE) 
+pred <- predict(svc, X.test, probability = TRUE)
+prob.svc <- as.data.frame(attr(pred, "probabilities"))$`1`
+stratifiedBrier(y.test, prob.svc)
+```
+
+```{r bag-svm}
+# simple version of bagged undersampled calibration
+bag.prob.svm <- bagCalibrate(train_set, X.test, 'y', model='svm', 
+                             type = 'C-classification', kernel = 'linear', 
+                             nbags = 30, ntimes = 1, ncluster = 4)
+stratifiedBrier(y.test, bag.prob.svm)
+```
+
+```{r weighted-bag-svm}
+# weighted version of bagged undersampled calibration
+weighted.bag.prob.svm <- bagCalibrate(train_set, X.test, 'y', model='svm', 
+                                      type = 'C-classification', kernel = 'linear', 
+                                      nbags = 30, ntimes = 20, ncluster = 4)
+stratifiedBrier(y.test, weighted.bag.prob.svm)
+```
+
+```{r comp-svm, fig.height = 5, fig.width = 5}
+comparisonPlot(y.test, list(prob.svc, bag.prob.svm, weighted.bag.prob.svm), 
+               c("SVM", "bagged-under SVM", "Weighted-bagged-under SVM"), nbins = 8)
+```
+
+
+## References:
+
+1. Wallace, B.C., Dahabreh, I.J. Improving class probability estimates for imbalanced data. Knowl Inf Syst 41, 33–52 (2014). https://doi.org/10.1007/s10115-013-0670-6
+2. Alexandru Niculescu-Mizil and Rich Caruana. 2005. Predicting good probabilities with supervised learning. In Proceedings of the 22nd international conference on Machine learning (ICML ’05). Association for Computing Machinery, New York, NY, USA, 625–632. DOI:https://doi.org/10.1145/1102351.1102430
+3. [sklearn documentation: Probability Calibration](https://scikit-learn.org/stable/modules/calibration.html#calibration)
+

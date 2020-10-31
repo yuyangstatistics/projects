@@ -1,0 +1,18 @@
+Package: imbCalib
+Type: Package
+Title: Probability Calibration for Imbalanced Data
+Version: 0.1.0
+Author: Yu Yang
+Maintainer: Yu Yang <yang6367@umn.edu>
+Description: This package intends to calibrate probabilities for imbalanced data, using 
+    bagged undersampling method. It also provides functionality to calculate both standard
+    Brier score and stratified Brier score. Besides, calibration curves and comparison plot 
+    could be otained by using two plotting functions inside the package.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2
+Suggests: 
+    testthat (>= 2.1.0), knitr, rmarkdown
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
