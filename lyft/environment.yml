@@ -1,0 +1,17 @@
+name: lyft
+dependencies:
+  - python=3.7
+  - numpy
+  - pandas
+  - pip
+  - pip:
+    - scipy
+    - notebook
+    - seaborn
+    - matplotlib
+    - torch
+    - l5kit
+    - kaggle
+    - efficientnet_pytorch
+    - tensorboardX
+    - adamp

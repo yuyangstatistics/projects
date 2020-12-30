@@ -1,0 +1,11 @@
+**/input
+**/output
+**/debug
+**/save
+
+*.code-workspace
+*~
+
+*__pycache__*
+
+*.pth
