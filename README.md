@@ -11,3 +11,7 @@ This repository contains projects that I have finished so far.
    - Focuses on probability calibration under the imbalanced data scenario.
 5. *__wellsfargo__*: 2020 Summer, Wells Fargo Campus Analytics Challenge 2020.
    - Focuses on developing a machine learning model for a binary classification task.
+6. *__lyft__*: 2020 Fall, Kaggle: Lyft Motion Prediction for Autonomous Vehicles
+   - Focuses on motion prediction for self-driving vehicles.
+7. *__squad__*: 2020 Fall, the final project of STAT 8931.
+   - Focuses on building a model for Machine Reading Comprehension tasks.
