@@ -1,0 +1,17 @@
+name: squad
+dependencies:
+  - python=3.7
+  - numpy
+  - pandas
+  - pip
+  - pip:
+    - scipy
+    - notebook
+    - matplotlib
+    - tqdm
+    - spacy
+    - ujson
+    - torch
+    - tensorboard
+    - tensorboardX
+    - tensorflow==1.15

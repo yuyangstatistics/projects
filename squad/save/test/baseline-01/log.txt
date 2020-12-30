@@ -1,0 +1,33 @@
+[12.11.20 13:53:09] Args: {
+    "batch_size": 64,
+    "char_emb_file": "./data/char_emb.json",
+    "dev_eval_file": "./data/dev_eval.json",
+    "dev_record_file": "./data/dev.npz",
+    "gpu_ids": [
+        6,
+        7
+    ],
+    "hidden_size": 100,
+    "load_path": "./save/train/baseline-02/best.pth.tar",
+    "max_ans_len": 15,
+    "name": "baseline",
+    "num_visuals": 25,
+    "num_workers": 4,
+    "save_dir": "./save/test/baseline-01",
+    "split": "dev",
+    "sub_file": "submission.csv",
+    "test_eval_file": "./data/test_eval.json",
+    "test_record_file": "./data/test.npz",
+    "train_eval_file": "./data/train_eval.json",
+    "train_record_file": "./data/train.npz",
+    "use_squad_v2": true,
+    "word_emb_file": "./data/word_emb.json"
+}
+[12.11.20 13:53:16] Loading embeddings...
+[12.11.20 13:53:20] Building model...
+[12.11.20 13:53:21] Loading checkpoint from ./save/train/baseline-02/best.pth.tar...
+[12.11.20 13:53:23] Building dataset...
+[12.11.20 13:53:23] Evaluating on dev split...
+[12.11.20 13:53:31] Dev NLL: 03.06, F1: 58.28, EM: 55.13, AvNA: 64.70
+[12.11.20 13:53:31] Visualizing in TensorBoard...
+[12.11.20 13:53:32] Writing submission file to ./save/test/baseline-01/dev_submission.csv...

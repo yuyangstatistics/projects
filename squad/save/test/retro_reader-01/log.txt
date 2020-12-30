@@ -1,0 +1,43 @@
+[12.11.20 13:54:05] Args: {
+    "alpha1": 0.5,
+    "alpha2": 0.5,
+    "batch_size": 64,
+    "beta1": 0.5,
+    "beta2": 0.5,
+    "char_emb_file": "./data/char_emb.json",
+    "dev_eval_file": "./data/dev_eval.json",
+    "dev_record_file": "./data/dev.npz",
+    "gpu_ids": [
+        6,
+        7
+    ],
+    "hidden_size": 100,
+    "lambda1": 0.5,
+    "lambda2": 0.5,
+    "load_intensive_path": "./save/train/ireader-05/best.pth.tar",
+    "load_path": null,
+    "load_sketchy_path": "./save/train/sreader-01/best.pth.tar",
+    "max_ans_len": 15,
+    "name": "retro_reader",
+    "num_visuals": 25,
+    "num_workers": 4,
+    "save_dir": "./save/test/retro_reader-01",
+    "split": "dev",
+    "sub_file": "submission.csv",
+    "test_eval_file": "./data/test_eval.json",
+    "test_record_file": "./data/test.npz",
+    "threshold": -0.006,
+    "train_eval_file": "./data/train_eval.json",
+    "train_record_file": "./data/train.npz",
+    "use_squad_v2": true,
+    "word_emb_file": "./data/word_emb.json"
+}
+[12.11.20 13:54:12] Loading embeddings...
+[12.11.20 13:54:16] Building model...
+[12.11.20 13:54:16] Loading Sketchy Reader checkpoint from ./save/train/sreader-01/best.pth.tar...
+[12.11.20 13:54:19] Loading Intensive Reader checkpoint from ./save/train/ireader-05/best.pth.tar...
+[12.11.20 13:54:19] Building dataset...
+[12.11.20 13:54:19] Evaluating on dev split...
+[12.11.20 13:54:30] Dev NLL: 03.66, BCE: 00.65, F1: 61.15, EM: 59.45, AvNA: 63.94
+[12.11.20 13:54:30] Visualizing in TensorBoard...
+[12.11.20 13:54:30] Writing submission file to ./save/test/retro_reader-01/dev_submission.csv...
