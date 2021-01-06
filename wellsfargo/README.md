@@ -2,6 +2,8 @@
 
 Team Members: Xuesong Hou, Chunlin Li, Yu Yang
 
+Challenge Website: https://www.mindsumo.com/contests/campus-analytics-challenge-2020.
+
 This repository contains all of the code, data, and images throughout our data anlaysis. 
 
 ### Data
