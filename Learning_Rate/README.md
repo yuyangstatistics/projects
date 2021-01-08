@@ -1,7 +1,10 @@
 ## Learning Rate Investigation
+
+This is a class project for IE 8521 (Optimization). 
+
 This project investigates the effect of learning rate updating schemes on the convergence time and model performance. 
 
-Credit goes to the team: Yu Yang and Liwei Huang.
+Team Members: Liwei Huang and Yu Yang.
 
 #### Detail of sequences we considered:
 - seq1: 1/n

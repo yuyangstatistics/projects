@@ -1,8 +1,8 @@
 # R package: imbCalib
 
-This package intends to calibrate probabilities for imbalanced data. 
+This is a class project for STAT 8054 (Statistical Methods IV).
 
-The method is to do bagging over undersampled datasets, and hence to mitigate the bias of probability calibration induced by the imbalance of the dataset. Refer to [Wallace et.al 2014](https://doi.org/10.1007/s10115-013-0670-6) for more detail.
+This package intends to calibrate probabilities for imbalanced data. The method is to do bagging over undersampled datasets, and hence to mitigate the bias of probability calibration induced by the imbalance of the dataset. Refer to [Wallace et.al 2014](https://doi.org/10.1007/s10115-013-0670-6) for more detail.
 
 ## Datasets
 `imbalance`: An imbalanced dataset with 8 covariates and 1 binary response. There are about 5% samples in the positive class.

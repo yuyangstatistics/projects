@@ -1,4 +1,10 @@
-## MinneMUDAC 2019
+## MinneMUDAC 2019 Student Data Science Challenge
+
+**Team Name**: Women in Math and Stats
+
+**Team Members**: Somyi Baek, Cora Crown, Sarah Milstein, Yu Yang
+
+**Advisor**: Prof. Gilad Lerman
 
 This repository contains the key part of the code I have written for the MinneMUDAC project and the presentation slides of our talks.
 

@@ -1,5 +1,5 @@
 # Retro-Reader
-This is a project for the STAT 8931 course.
+This is a class project for STAT 8931 (Advanced Topics in Statistics).
 - `data` contains the raw data.
 - `save` contains the model training and testing logs.
 - `src` contains the python scripts and shell scripts.
