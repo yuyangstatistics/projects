@@ -32,5 +32,7 @@ Wallace, B.C., Dahabreh, I.J. Improving class probability estimates for imbalanc
 
 ## Helpful Resources to understand probability calibration
 [The Basics of Classifier Evaluation: Part 2](http://www.svds.com/classifiers2/)
+
 [How to Calibrate Probabilities for Imbalanced Classification](https://machinelearningmastery.com/probability-calibration-for-imbalanced-classification/)
+
 [Calibration of probabilities for tree-based models](https://gdmarmerola.github.io/probability-calibration/)

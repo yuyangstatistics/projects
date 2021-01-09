@@ -1,4 +1,4 @@
-## Learning Rate Investigation
+## Learning Rate Decaying Scheme Investigation
 
 This is a class project for IE 8521 (Optimization). 
 
