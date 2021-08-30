@@ -1,0 +1,10 @@
+name: pgsummary
+dependencies:
+  - python=2.7
+  - numpy
+  - pandas
+  - pip
+  - pip:
+    - scipy
+    - notebook
+    - scikit-learn

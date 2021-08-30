@@ -1,0 +1,7 @@
+*.pyc 
+*.bin
+
+**/log/train*
+**/log/debug*
+**/log/rbm_pg*
+**/save

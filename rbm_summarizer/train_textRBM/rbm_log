@@ -1,0 +1,19 @@
+max_size of vocab was specified as 50000; we now have 50000 words. Stopping reading.
+Finished constructing vocabulary of 50000 total words. Last word added: 16-years-old
+Training loss for 500 iter: 23.81607
+Training loss for 1000 iter: 33.74953
+Training loss for 1500 iter: 30.06045
+Training loss for 2000 iter: 27.63197
+Training loss for 2500 iter: 24.29811
+Training loss for 3000 iter: 24.73205
+Training loss for 3500 iter: 25.74560
+Training loss for 4000 iter: 25.93059
+Training loss for 4500 iter: 17.01605
+Training loss for 5000 iter: 13.98193
+Training loss for 5500 iter: 18.43078
+Training loss for 6000 iter: 16.07159
+Training loss for 6500 iter: 18.56947
+Training loss for 7000 iter: 22.12147
+Training loss for 7500 iter: 14.93012
+Training loss for 8000 iter: 17.01383
+Training loss for 8500 iter: 19.58290
