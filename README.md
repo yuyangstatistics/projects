@@ -15,3 +15,5 @@ This repository contains projects that I have finished so far.
    - Focuses on motion prediction for self-driving vehicles.
 7. *__squad__*: 2020 Fall, the final project of STAT 8931.
    - Focuses on building a model for Machine Reading Comprehension tasks.
+8. *__rbm_summarizer__*: 2021 Spring, the final project of STAT 8056.
+   - Focuses on building a summarization model with assistance from topic information.
