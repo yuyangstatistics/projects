@@ -53,5 +53,21 @@ vignettes/*.pdf
 .Rproj.user
 
 # latex files
-*.tex
-*.bib
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
